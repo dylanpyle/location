@@ -44,6 +44,13 @@ async function run() {
 
   const latestPoint = locationToLatLng(currentLocation);
   const latestMarker = L.marker(latestPoint, { icon: currentLocationIcon }).addTo(map);
+  const latestCircle = L.circle(latestPoint, {
+    color: 'transparent',
+    fillColor: '#08A6FF',
+    fillOpacity: 0.2,
+    radius: 5000
+  }).addTo(map);
+
   const currentLocationDate = new Date(currentLocation.timestamp);
 
   latestMarker.bindTooltip(currentLocationDate.toLocaleString('en-US', {
