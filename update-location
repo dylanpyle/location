@@ -17,6 +17,6 @@ set -o noglob
   fi
 
   git add somewhere.json
-  git commit -m "Update location"
+  git commit --no-gpg-sign -m "Update location"
   git push origin main
 )
