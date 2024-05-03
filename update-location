@@ -5,15 +5,17 @@ set -o nounset
 set -o pipefail
 set -o noglob
 
-deno run -A ../somewhere/somewhere.ts
-
-if [[ $(git status --porcelain) == '' ]] ; then
-  echo "No new locations found, nothing to do"
-  exit
-fi
 
 (
   cd "$(dirname "$0")"
+
+  deno run -A ../somewhere/somewhere.ts
+
+  if [[ $(git status --porcelain) == '' ]] ; then
+    echo "No new locations found, nothing to do"
+    exit
+  fi
+
   git add somewhere.json
   git commit -m "Update location"
   git push origin main
