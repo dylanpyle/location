@@ -12,6 +12,9 @@ if [[ $(git status --porcelain) == '' ]] ; then
   exit
 fi
 
-git add somewhere.json
-git commit -m "Update location"
-git push origin main
+(
+  cd "$(dirname "$0")"
+  git add somewhere.json
+  git commit -m "Update location"
+  git push origin main
+)
