@@ -21,7 +21,10 @@ async function run() {
   const previousLocationIcon = L.divIcon({ className: 'previous-location-icon' });
 
   const linePoints = locations.map(locationToLatLng);
-  const polyline = L.polyline(linePoints, {color: '#444'}).addTo(map);
+  const polyline = L.polyline(linePoints, {
+    color: '#444',
+    weight: 1
+  }).addTo(map);
 
   const [currentLocation, ...otherLocations] = locations;
 
@@ -42,6 +45,7 @@ async function run() {
   const latestPoint = locationToLatLng(currentLocation);
   const latestMarker = L.marker(latestPoint, { icon: currentLocationIcon }).addTo(map);
   const currentLocationDate = new Date(currentLocation.timestamp);
+
   latestMarker.bindTooltip(currentLocationDate.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
