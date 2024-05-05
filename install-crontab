@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o noglob
+
+(
+  cd $(dirname "$0")
+  (crontab -l; echo "0 * * * * $(realpath update-location)") | crontab -
+)
