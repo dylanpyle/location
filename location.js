@@ -10,7 +10,7 @@ async function run() {
 
 
   const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>. <a href="https://github.com/dylanpyle/location">Source</a>',
+    attribution: '<a href="https://github.com/dylanpyle/location">Source code</a>. Imagery &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors & <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 20
   });

@@ -1,44 +1,46 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>location</title>
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""
-      />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
 
-      <style>
-        html, body {
-          height: 100%;
-          margin: 0;
-        }
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
 
-        * {
-          box-sizing: border-box;
-        }
+      * {
+        box-sizing: border-box;
+      }
 
-        #map {
-          height: 100%;
-          width: 100%
-        }
+      #map {
+        height: 100%;
+        width: 100%
+      }
 
-        .current-location-icon {
-          width: 20px;
-          height: 20px;
-          background-color: #08A6FF;
-          border-radius: 50%;
-        }
+      .current-location-icon {
+        width: 20px;
+        height: 20px;
+        background-color: #08A6FF;
+        border-radius: 50%;
+      }
 
-        .previous-location-icon {
-          width: 10px;
-          height: 10px;
-          border: 1px solid #444;
-          background-color: #000;
-          border-radius: 50%;
-        }
-      </style>
+      .previous-location-icon {
+        width: 10px;
+        height: 10px;
+        border: 1px solid #444;
+        background-color: #000;
+        border-radius: 50%;
+      }
+    </style>
   </head>
   <body>
     <div id="map"></div>
