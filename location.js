@@ -2,6 +2,9 @@ function locationToLatLng(location) {
   return [location.lat, location.lng];
 }
 
+const tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
+const attribution = '<a href="https://github.com/dylanpyle/location">Source code</a>. Imagery &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors & <a href="https://carto.com/attributions">CARTO</a>';
+
 async function run() {
   const locationsResponse = await fetch('/somewhere.json');
   const locations = (await locationsResponse.json()).locations;
@@ -9,8 +12,8 @@ async function run() {
   const map = L.map('map');
 
 
-  const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '<a href="https://github.com/dylanpyle/location">Source code</a>. Imagery &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors & <a href="https://carto.com/attributions">CARTO</a>',
+  const tiles = L.tileLayer(tileUrl, {
+    attribution,
     subdomains: 'abcd',
     maxZoom: 20
   });
