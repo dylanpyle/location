@@ -28,7 +28,7 @@ async function run() {
 
   const [currentLocation, ...otherLocations] = locations;
 
-  map.setView(locationToLatLng(currentLocation), 13);
+  map.setView(locationToLatLng(currentLocation), 11);
 
   for (const location of otherLocations) {
     const latLng = locationToLatLng(location);
