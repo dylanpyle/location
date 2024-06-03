@@ -9,7 +9,7 @@ set -o noglob
 (
   cd "$(dirname "$0")"
 
-  /opt/homebrew/bin/deno run -A ../somewhere/somewhere.ts
+  /Users/dylan/.deno/bin/deno run -A ../somewhere/somewhere.ts
 
   if [[ $(git status --porcelain) == '' ]] ; then
     echo "No new locations found, nothing to do"
