@@ -9,6 +9,8 @@ set -o noglob
 (
   cd "$(dirname "$0")"
 
+  git pull origin main
+
   /Users/dylan/.deno/bin/deno run -A ../somewhere/somewhere.ts
 
   if [[ $(git status --porcelain) == '' ]] ; then
