@@ -19,71 +19,114 @@
         font-display: swap;
       }
 
+      @keyframes ping {
+        0% {
+          transform: scale(0);
+          opacity: 1;
+        }
+
+        50%, 100% {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+
       * {
         box-sizing: border-box;
       }
 
+      body, p, h1, ul {
+        color: #111;
+        font-size: 15px;
+        font-weight: 400;
+        font-family: 'Haskoy', sans;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+
+        @media (max-width: 600px) {
+          font-size: 16px;
+        }
+      }
+
       html {
-        height: 100%;
         background: #fff;
       }
 
       html, body {
+        height: 100%;
         margin: 0;
         padding: 0;
         scroll-behavior: smooth;
         cursor: default;
       }
 
-      body {
+      li {
+        margin-left: 1.5em;
+      }
+
+      .outer {
         min-height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+      }
+
+      #map, main {
+        border-radius: 8px;
       }
 
       main {
-        flex: 1 1 auto;
-        position: relative;
-        z-index: 1;
-
-        display: flex;
-        flex-direction: column;
-
-        align-items: flex-start;
-        justify-content: flex-start;
-        text-align: left;
-        padding: 1.5em 50px;
-        max-width: 800px;
-        width: 100%;
+        padding: 40px 60px;
       }
 
-      #map {
-        height: 500px;
-        width: 100%
+      p {
+        margin-bottom: 0.8em;
       }
 
       .current-location-icon {
+        position: relative;
         width: 20px;
         height: 20px;
+        padding: 0;
         background-color: #08A6FF;
         border-radius: 50%;
+
+        &::after {
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          width: 20px;
+          height: 20px;
+          background-color: #08A6FF;
+          border-radius: 50%;
+          animation: ping 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          content: '';
+        }
       }
 
       .previous-location-icon {
         width: 10px;
         height: 10px;
-        border: 1px solid #444;
-        background-color: #000;
+        border: 1px solid #aaa;
+        background-color: #ddd;
         border-radius: 50%;
       }
     </style>
   </head>
   <body>
-    <main>
+    <div class="outer">
       <div id="map"></div>
-    </main>
+      <main>
+        <p>
+          Currently: <span id="current-location"></span>
+        </p>
+        <p>
+          Recently:
+          <ul id="previous-locations"></ul>
+        </p>
+      </main>
+    </div>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
