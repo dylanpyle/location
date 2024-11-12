@@ -5,7 +5,7 @@ function locationToLatLng(location) {
 const tileUrl =
   "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
 const attribution =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & <a href="https://carto.com/attributions">CARTO</a>';
+  'Imagery &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>, <a href="https://carto.com/attributions">CARTO</a>';
 
 function getLocationString(location) {
   const isDomestic = location.region === "United States";
@@ -28,16 +28,50 @@ function getDateString(date) {
 
 function bindTooltip(marker, location) {
   const date = new Date(location.timestamp);
-
   marker.bindTooltip(`${getDateString(date)} (${getLocationString(location)}`);
 }
 
-function renderLocationText(currentLocation, otherLocations) {
-  const currentLocationEl = document.getElementById("current-location");
-  const previousLocationsEl = document.getElementById("previous-locations");
+function createLocationEl(location, isCurrent) {
+  const locationEl = document.createElement("li");
+  locationEl.classList.add("location");
+
+  const iconEl = document.createElement("div");
+  iconEl.classList.add(
+    isCurrent ? "current-location-icon" : "previous-location-icon",
+  );
+  locationEl.appendChild(iconEl);
+
+  const textEl = document.createElement("div");
+
+  const locationString = getLocationString(location);
+
+  const locationDescriptionEl = document.createElement("div");
+  locationDescriptionEl.classList.add("location-description");
+  locationDescriptionEl.textContent = locationString;
+  textEl.appendChild(locationDescriptionEl);
+
+  const date = new Date(location.timestamp);
+  const dateString = getDateString(date);
+
+  const dateEl = document.createElement("div");
+  dateEl.classList.add("date");
+  dateEl.textContent = dateString;
+  textEl.appendChild(dateEl);
+
+  locationEl.appendChild(textEl);
+
+  if (isCurrent) {
+    locationEl.classList.add("current");
+  }
+
+  return locationEl;
+}
+
+function renderLocationList(currentLocation, otherLocations) {
+  const locationsEl = document.getElementById("locations");
 
   const currentLocationString = getLocationString(currentLocation);
-  currentLocationEl.textContent = currentLocationString;
+  locationsEl.appendChild(createLocationEl(currentLocation, true));
 
   let lastLocation = currentLocationString;
 
@@ -50,13 +84,7 @@ function renderLocationText(currentLocation, otherLocations) {
       continue;
     }
 
-    const locationEl = document.createElement("li");
-
-    const date = new Date(location.timestamp);
-    const dateString = getDateString(date);
-    locationEl.textContent = `${dateString} - ${locationString}`;
-
-    previousLocationsEl.appendChild(locationEl);
+    locationsEl.appendChild(createLocationEl(location, false));
 
     lastLocation = locationString;
   }
@@ -68,7 +96,7 @@ async function run() {
 
   const [currentLocation, ...otherLocations] = locations;
 
-  renderLocationText(currentLocation, otherLocations);
+  renderLocationList(currentLocation, otherLocations);
 
   const map = L.map("map");
 
@@ -100,8 +128,12 @@ async function run() {
   }
 
   const latestPoint = locationToLatLng(currentLocation);
-  const latestMarker = L.marker(latestPoint, { icon: currentLocationIcon })
+  const latestMarker = L.marker(latestPoint, {
+    icon: currentLocationIcon,
+    zIndexOffset: 1000,
+  })
     .addTo(map);
+
   const latestCircle = L.circle(latestPoint, {
     color: "transparent",
     fillColor: "#08A6FF",
