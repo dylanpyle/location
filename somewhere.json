@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 1.3,
+      "lng": 103.8,
+      "city": "Singapore",
+      "state": "SG",
+      "region": "Singapore",
+      "timestamp": 1731901831578
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
