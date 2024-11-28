@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.7,
+      "lng": -73.2,
+      "city": "Williamstown",
+      "state": "MA",
+      "region": "United States",
+      "timestamp": 1732831784930
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
