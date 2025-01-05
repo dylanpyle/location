@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.2,
+      "lng": -83.4,
+      "city": "Romulus",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1736085611187
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
