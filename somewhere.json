@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 36.1,
+      "lng": -115.2,
+      "city": "Las Vegas",
+      "state": "NV",
+      "region": "United States",
+      "timestamp": 1736175608263
+    },
+    {
       "lat": 42.2,
       "lng": -83.4,
       "city": "Romulus",
