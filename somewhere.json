@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.4,
+      "lng": -83.1,
+      "city": "Detroit",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1740087377806
+    },
+    {
       "lat": 19.4,
       "lng": -99.2,
       "city": "Cuauhtémoc",
