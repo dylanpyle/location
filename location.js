@@ -1,3 +1,5 @@
+const RECENT_LOCATION_COUNT = 11;
+
 function locationToLatLng(location) {
   return [location.lat, location.lng];
 }
@@ -28,7 +30,7 @@ function getDateString(date) {
 
 function bindTooltip(marker, location) {
   const date = new Date(location.timestamp);
-  marker.bindTooltip(`${getDateString(date)} (${getLocationString(location)}`);
+  marker.bindTooltip(`${getDateString(date)} (${getLocationString(location)})`);
 }
 
 function createLocationEl(location, isCurrent) {
@@ -75,7 +77,7 @@ function renderLocationList(currentLocation, otherLocations) {
 
   let lastLocation = currentLocationString;
 
-  const recent = otherLocations.slice(0, 11);
+  const recent = otherLocations.slice(0, RECENT_LOCATION_COUNT);
 
   for (const location of recent) {
     const locationString = getLocationString(location);
