@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 40.8,
+      "lng": -74,
+      "city": "New York",
+      "state": "NY",
+      "region": "United States",
+      "timestamp": 1741096810194
+    },
+    {
       "lat": 40.7,
       "lng": -74,
       "city": "New York",
