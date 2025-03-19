@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 51.5,
+      "lng": -0.2,
+      "city": "London",
+      "state": "England",
+      "region": "United Kingdom",
+      "timestamp": 1742374807957
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
