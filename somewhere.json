@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 28.6,
+      "lng": 77.2,
+      "city": "New Delhi",
+      "state": "Delhi",
+      "region": "India",
+      "timestamp": 1742776209940
+    },
+    {
       "lat": 51.5,
       "lng": -0.1,
       "city": "London",
