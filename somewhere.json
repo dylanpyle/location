@@ -2,6 +2,14 @@
   "locations": [
     {
       "lat": 28.6,
+      "lng": 77.3,
+      "city": "Noida",
+      "state": "Uttar Pradesh",
+      "region": "India",
+      "timestamp": 1742963410377
+    },
+    {
+      "lat": 28.6,
       "lng": 77.2,
       "city": "New Delhi",
       "state": "Delhi",
