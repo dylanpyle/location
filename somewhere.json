@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 13,
+      "lng": 77.6,
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "region": "India",
+      "timestamp": 1743058085181
+    },
+    {
       "lat": 28.6,
       "lng": 77.3,
       "city": "Noida",
