@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 18.9,
+      "lng": 72.8,
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "region": "India",
+      "timestamp": 1743154210061
+    },
+    {
       "lat": 13,
       "lng": 77.6,
       "city": "Bengaluru",
