@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 41.3,
+      "lng": 28.7,
+      "city": "Arnavutkoy",
+      "state": "Istanbul",
+      "region": "Türkiye",
+      "timestamp": 1743242066659
+    },
+    {
       "lat": 18.9,
       "lng": 72.8,
       "city": "Mumbai",
