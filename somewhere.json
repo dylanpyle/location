@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": -37.8,
+      "lng": 145,
+      "city": "Kew",
+      "state": "VIC",
+      "region": "Australia",
+      "timestamp": 1745236812732
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
