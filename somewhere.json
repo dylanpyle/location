@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.3,
+      "lng": -71.1,
+      "city": "Boston",
+      "state": "MA",
+      "region": "United States",
+      "timestamp": 1753192807477
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
