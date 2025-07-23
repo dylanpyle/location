@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.7,
+      "lng": -71,
+      "city": "Boxford",
+      "state": "MA",
+      "region": "United States",
+      "timestamp": 1753293890828
+    },
+    {
       "lat": 42.3,
       "lng": -71.1,
       "city": "Boston",
