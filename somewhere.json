@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 32.9,
+      "lng": -80,
+      "city": "North Charleston",
+      "state": "SC",
+      "region": "United States",
+      "timestamp": 1753387208231
+    },
+    {
       "lat": 42.7,
       "lng": -71,
       "city": "Boxford",
