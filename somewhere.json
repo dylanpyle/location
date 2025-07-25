@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 33.2,
+      "lng": -80,
+      "city": "Pinopolis",
+      "state": "SC",
+      "region": "United States",
+      "timestamp": 1753477324705
+    },
+    {
       "lat": 32.9,
       "lng": -80,
       "city": "North Charleston",
