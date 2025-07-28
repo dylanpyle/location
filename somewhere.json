@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.4,
+      "lng": -83.1,
+      "city": "Detroit",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1753711207656
+    },
+    {
       "lat": 33.2,
       "lng": -80,
       "city": "Pinopolis",
