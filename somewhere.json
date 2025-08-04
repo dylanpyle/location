@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.7,
+      "lng": -71,
+      "city": "Boxford",
+      "state": "MA",
+      "region": "United States",
+      "timestamp": 1754316007269
+    },
+    {
       "lat": 41.3,
       "lng": -75.8,
       "city": "Wilkes Barre",
