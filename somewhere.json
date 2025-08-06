@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 43.6,
+      "lng": -71.8,
+      "city": "Alexandria",
+      "state": "NH",
+      "region": "United States",
+      "timestamp": 1754514008053
+    },
+    {
       "lat": 42.7,
       "lng": -71,
       "city": "Boxford",
