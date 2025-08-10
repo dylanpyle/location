@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 41.3,
+      "lng": -75.8,
+      "city": "Wilkes Barre",
+      "state": "PA",
+      "region": "United States",
+      "timestamp": 1754798408547
+    },
+    {
       "lat": 43.6,
       "lng": -71.8,
       "city": "Alexandria",
