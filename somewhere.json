@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 37.6,
+      "lng": -122.4,
+      "city": "San Francisco",
+      "state": "CA",
+      "region": "United States",
+      "timestamp": 1755187207627
+    },
+    {
       "lat": 37.8,
       "lng": -122.4,
       "city": "San Francisco",
