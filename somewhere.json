@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 40.8,
+      "lng": -112,
+      "city": "Salt Lake City",
+      "state": "UT",
+      "region": "United States",
+      "timestamp": 1756765847956
+    },
+    {
       "lat": 39.5,
       "lng": -119.8,
       "city": "Reno",
