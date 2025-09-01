@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 39.5,
+      "lng": -119.8,
+      "city": "Reno",
+      "state": "NV",
+      "region": "United States",
+      "timestamp": 1756752703010
+    },
+    {
       "lat": 42.4,
       "lng": -83.1,
       "city": "Detroit",
