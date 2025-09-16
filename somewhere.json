@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 40.7,
+      "lng": -74,
+      "city": "New York",
+      "state": "NY",
+      "region": "United States",
+      "timestamp": 1758027614005
+    },
+    {
       "lat": 36.8,
       "lng": -84.4,
       "city": "Parkers Lake",
