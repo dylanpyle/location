@@ -2,6 +2,14 @@
   "locations": [
     {
       "lat": 42.4,
+      "lng": -83.1,
+      "city": "Detroit",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1761922809313
+    },
+    {
+      "lat": 42.4,
       "lng": -83.5,
       "city": "Plymouth",
       "state": "MI",
