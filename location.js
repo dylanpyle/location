@@ -38,9 +38,7 @@ function createLocationEl(location, isCurrent) {
   locationEl.classList.add("location");
 
   const iconEl = document.createElement("div");
-  iconEl.classList.add(
-    isCurrent ? "current-location-icon" : "previous-location-icon",
-  );
+  iconEl.classList.add("location-icon");
   locationEl.appendChild(iconEl);
 
   const textEl = document.createElement("div");
@@ -62,34 +60,28 @@ function createLocationEl(location, isCurrent) {
 
   locationEl.appendChild(textEl);
 
-  if (isCurrent) {
-    locationEl.classList.add("current");
-  }
-
   return locationEl;
 }
 
-function renderLocationList(currentLocation, otherLocations) {
+function renderLocationList(locations) {
   const locationsEl = document.getElementById("locations");
 
-  const currentLocationString = getLocationString(currentLocation);
-  locationsEl.appendChild(createLocationEl(currentLocation, true));
+  const recent = locations.slice(0, RECENT_LOCATION_COUNT);
 
-  let lastLocation = currentLocationString;
-
-  const recent = otherLocations.slice(0, RECENT_LOCATION_COUNT);
-
-  for (const location of recent) {
+  recent.forEach((location, i) => {
     const locationString = getLocationString(location);
+    const next = recent[i + 1];
 
-    if (locationString === lastLocation) {
-      continue;
+    if (next) {
+      const nextLocation = getLocationString(recent[i + 1]);
+
+      if (locationString === nextLocation) {
+        return;
+      }
     }
 
     locationsEl.appendChild(createLocationEl(location, false));
-
-    lastLocation = locationString;
-  }
+  });
 }
 
 async function run() {
@@ -98,7 +90,7 @@ async function run() {
 
   const [currentLocation, ...otherLocations] = locations;
 
-  renderLocationList(currentLocation, otherLocations);
+  renderLocationList(locations);
 
   const map = L.map("map");
 
@@ -112,7 +104,7 @@ async function run() {
 
   const currentLocationIcon = L.divIcon({ className: "current-location-icon" });
   const previousLocationIcon = L.divIcon({
-    className: "previous-location-icon",
+    className: "location-icon",
   });
 
   const linePoints = locations.map(locationToLatLng);
