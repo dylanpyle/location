@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 44.3,
+      "lng": -71.4,
+      "city": "Twin Mountain",
+      "state": "NH",
+      "region": "United States",
+      "timestamp": 1766458808564
+    },
+    {
       "lat": 42.7,
       "lng": -71,
       "city": "Boxford",
