@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.7,
+      "lng": -71,
+      "city": "Boxford",
+      "state": "MA",
+      "region": "United States",
+      "timestamp": 1766545208832
+    },
+    {
       "lat": 44.3,
       "lng": -71.4,
       "city": "Twin Mountain",
