@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 43,
+      "lng": -78.2,
+      "city": "Batavia",
+      "state": "NY",
+      "region": "United States",
+      "timestamp": 1766973608722
+    },
+    {
       "lat": 42.7,
       "lng": -71,
       "city": "Boxford",
