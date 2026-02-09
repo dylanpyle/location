@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.4,
+      "lng": -83.1,
+      "city": "Detroit",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1770649207845
+    },
+    {
       "lat": 42.7,
       "lng": -71,
       "city": "Boxford",
