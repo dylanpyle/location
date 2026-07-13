@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 55.9,
+      "lng": -4.2,
+      "city": "Glasgow",
+      "state": "Scotland",
+      "region": "United Kingdom",
+      "timestamp": 1783951209611
+    },
+    {
       "lat": 51.6,
       "lng": 0,
       "city": "London",
