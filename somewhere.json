@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 56.8,
+      "lng": -5.1,
+      "city": "Fort William",
+      "state": "Scotland",
+      "region": "United Kingdom",
+      "timestamp": 1784488665861
+    },
+    {
       "lat": 55.9,
       "lng": -4.2,
       "city": "Glasgow",
