@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 53.3,
+      "lng": -6.3,
+      "city": "Dublin 8",
+      "state": "Co. Dublin",
+      "region": "Ireland",
+      "timestamp": 1784675117875
+    },
+    {
       "lat": 56.8,
       "lng": -5.1,
       "city": "Fort William",
