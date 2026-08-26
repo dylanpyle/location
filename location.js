@@ -139,6 +139,86 @@ function locationToCoordinate(location) {
   return new mapkit.Coordinate(location.lat, location.lng);
 }
 
+function toRadians(degrees) {
+  return (degrees * Math.PI) / 180;
+}
+
+function toDegrees(radians) {
+  return (radians * 180) / Math.PI;
+}
+
+// Points along the great circle between two locations, as [lat, lng] pairs
+function greatCirclePoints(a, b) {
+  const lat1 = toRadians(a.lat);
+  const lng1 = toRadians(a.lng);
+  const lat2 = toRadians(b.lat);
+  const lng2 = toRadians(b.lng);
+
+  const angularDistance = 2 *
+    Math.asin(
+      Math.sqrt(
+        Math.sin((lat2 - lat1) / 2) ** 2 +
+          Math.cos(lat1) * Math.cos(lat2) * Math.sin((lng2 - lng1) / 2) ** 2,
+      ),
+    );
+
+  if (angularDistance < 1e-6) {
+    return [[a.lat, a.lng], [b.lat, b.lng]];
+  }
+
+  // One segment per ~0.05 radians (~320 km), so short hops stay straight
+  const steps = Math.max(1, Math.ceil(angularDistance / 0.05));
+  const points = [];
+
+  for (let i = 0; i <= steps; i++) {
+    const fraction = i / steps;
+    const scaleA = Math.sin((1 - fraction) * angularDistance) /
+      Math.sin(angularDistance);
+    const scaleB = Math.sin(fraction * angularDistance) /
+      Math.sin(angularDistance);
+
+    const x = scaleA * Math.cos(lat1) * Math.cos(lng1) +
+      scaleB * Math.cos(lat2) * Math.cos(lng2);
+    const y = scaleA * Math.cos(lat1) * Math.sin(lng1) +
+      scaleB * Math.cos(lat2) * Math.sin(lng2);
+    const z = scaleA * Math.sin(lat1) + scaleB * Math.sin(lat2);
+
+    points.push([
+      toDegrees(Math.atan2(z, Math.sqrt(x * x + y * y))),
+      toDegrees(Math.atan2(y, x)),
+    ]);
+  }
+
+  return points;
+}
+
+// Break a path into separate runs where it crosses the antimeridian, so the
+// crossing doesn't draw as a line across the entire map. Each run is closed
+// onto the interpolated crossing point at ±180° so the two halves meet at the
+// date line instead of leaving a gap
+function splitAtAntimeridian(points) {
+  const runs = [[points[0]]];
+
+  for (let i = 1; i < points.length; i++) {
+    const [lat1, lng1] = points[i - 1];
+    const [lat2, lng2] = points[i];
+
+    if (Math.abs(lng2 - lng1) > 180) {
+      const unwrappedLng2 = lng2 > lng1 ? lng2 - 360 : lng2 + 360;
+      const boundary = lng1 > 0 ? 180 : -180;
+      const fraction = (boundary - lng1) / (unwrappedLng2 - lng1);
+      const crossingLat = lat1 + fraction * (lat2 - lat1);
+
+      runs[runs.length - 1].push([crossingLat, boundary]);
+      runs.push([[crossingLat, -boundary]]);
+    }
+
+    runs[runs.length - 1].push(points[i]);
+  }
+
+  return runs.filter((run) => run.length >= 2);
+}
+
 function createDotElement(className) {
   const el = document.createElement("div");
   el.classList.add(className);
@@ -174,21 +254,24 @@ window.initMapKit = async function initMapKit() {
 
   // MapKit silently thins the points of longer PolylineOverlay paths (even
   // when split into multi-point chunks), which dropped single-visit locations
-  // from the route — a two-point overlay per leg is immune
+  // from the route — one short overlay per leg keeps every location on the map
   const lineStyle = new mapkit.Style({
     strokeColor: "#8e939c",
     strokeOpacity: 0.5,
     lineWidth: 1.5,
   });
 
-  const coordinates = locations.map(locationToCoordinate);
+  for (let i = 0; i < locations.length - 1; i++) {
+    const arc = greatCirclePoints(locations[i], locations[i + 1]);
 
-  for (let i = 0; i < coordinates.length - 1; i++) {
-    map.addOverlay(
-      new mapkit.PolylineOverlay([coordinates[i], coordinates[i + 1]], {
-        style: lineStyle,
-      }),
-    );
+    for (const run of splitAtAntimeridian(arc)) {
+      map.addOverlay(
+        new mapkit.PolylineOverlay(
+          run.map(([lat, lng]) => new mapkit.Coordinate(lat, lng)),
+          { style: lineStyle },
+        ),
+      );
+    }
   }
 
   const pastAnnotations = otherLocations.map(
