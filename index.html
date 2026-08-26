@@ -2,64 +2,50 @@
 <html>
   <head>
     <meta charset='utf-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
     <meta name='color-scheme' content='light dark'>
     <title>location</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
 
     <style>
-      @font-face {
-        font-family: 'Haskoy';
-        src: url('https://dylanpyle.com/fonts/haskoy[wght].woff2') format('woff2');
-        font-weight: 100 900;
-        font-style: normal;
-        font-display: swap;
-      }
-
       @keyframes ping {
         0% {
           transform: scale(1);
-          opacity: 0.8;
+          opacity: 0.6;
         }
 
         70%, 100% {
-          transform: scale(3.5);
+          transform: scale(3.2);
           opacity: 0;
         }
       }
 
       :root {
-        --bg: #eef0f2;
-        --panel: rgba(255, 255, 255, 0.82);
-        --panel-border: rgba(0, 0, 0, 0.07);
-        --text: #16181c;
-        --muted: #7a808a;
-        --faint: #b3b8c0;
-        --line: rgba(0, 0, 0, 0.09);
-        --accent: #0899ec;
-        --dot: #c6cad1;
+        --bg: #e9eaec;
+        --panel: rgba(250, 250, 250, 0.72);
+        --panel-border: rgba(0, 0, 0, 0.08);
+        --text: #1c1c1e;
+        --muted: rgba(60, 60, 67, 0.6);
+        --faint: rgba(60, 60, 67, 0.33);
+        --line: rgba(60, 60, 67, 0.29);
+        --accent: #007aff;
+        --dot: #a6aab2;
         --dot-ring: #ffffff;
-        --shadow: 0 16px 48px rgba(15, 20, 30, 0.18), 0 2px 8px rgba(15, 20, 30, 0.08);
+        --shadow: 0 10px 36px rgba(0, 0, 0, 0.16), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #101216;
-          --panel: rgba(24, 27, 32, 0.82);
-          --panel-border: rgba(255, 255, 255, 0.09);
-          --text: #eceef1;
-          --muted: #9aa1ab;
-          --faint: #5c636e;
-          --line: rgba(255, 255, 255, 0.1);
-          --accent: #2fb1ff;
-          --dot: #4a515c;
-          --dot-ring: #1c2026;
-          --shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.35);
+          --bg: #1c1c1e;
+          --panel: rgba(29, 29, 31, 0.72);
+          --panel-border: rgba(255, 255, 255, 0.1);
+          --text: #f5f5f7;
+          --muted: rgba(235, 235, 245, 0.6);
+          --faint: rgba(235, 235, 245, 0.3);
+          --line: rgba(84, 84, 88, 0.65);
+          --accent: #0a84ff;
+          --dot: #636871;
+          --dot-ring: #2c2c2e;
+          --shadow: 0 10px 36px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
         }
       }
 
@@ -73,9 +59,10 @@
         padding: 0;
         background: var(--bg);
         color: var(--text);
-        font-family: 'Haskoy', system-ui, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
         font-size: 15px;
-        line-height: 1.45;
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
         cursor: default;
       }
 
@@ -84,91 +71,39 @@
         inset: 0;
       }
 
-      .leaflet-container {
-        background: var(--bg);
-        font-family: inherit;
-      }
-
-      .leaflet-tooltip {
-        font-family: inherit;
-        font-size: 12.5px;
-        color: var(--text);
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        border-radius: 8px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        backdrop-filter: blur(8px);
-        padding: 5px 9px;
-      }
-
-      .leaflet-tooltip::before {
-        display: none;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .leaflet-bar a {
-          background: #1c2026;
-          color: #eceef1;
-          border-bottom-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .leaflet-bar a:hover {
-          background: #262b33;
-        }
-
-        .leaflet-control-attribution {
-          background: rgba(24, 27, 32, 0.7);
-          color: var(--muted);
-        }
-
-        .leaflet-control-attribution a {
-          color: var(--accent);
-        }
-      }
-
       .panel {
         position: fixed;
         top: 16px;
-        right: 16px;
-        z-index: 1100;
+        left: 16px;
+        z-index: 100;
         width: 300px;
         max-height: calc(100dvh - 32px);
         overflow-y: auto;
         overscroll-behavior: contain;
-        padding: 22px 22px 14px;
+        padding: 20px 20px 12px;
         background: var(--panel);
-        backdrop-filter: blur(20px) saturate(1.5);
-        -webkit-backdrop-filter: blur(20px) saturate(1.5);
-        border: 1px solid var(--panel-border);
-        border-radius: 20px;
+        backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border: 0.5px solid var(--panel-border);
+        border-radius: 14px;
         box-shadow: var(--shadow);
       }
 
       .panel-header {
         display: flex;
         align-items: flex-start;
-        gap: 14px;
-      }
-
-      .label {
-        font-size: 10.5px;
-        font-weight: 600;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--muted);
-        margin: 0 0 2px;
+        gap: 13px;
       }
 
       h1 {
         margin: 0;
-        font-size: 23px;
+        font-size: 22px;
         font-weight: 700;
-        letter-spacing: -0.02em;
         line-height: 1.2;
       }
 
       .current-date {
-        margin-top: 3px;
+        margin-top: 2px;
         font-size: 13px;
         color: var(--muted);
       }
@@ -178,7 +113,7 @@
         flex-shrink: 0;
         width: 12px;
         height: 12px;
-        margin-top: 5px;
+        margin-top: 7px;
         background: var(--accent);
         border-radius: 50%;
       }
@@ -193,95 +128,77 @@
       }
 
       .previously {
-        margin-top: 22px;
+        margin-top: 20px;
       }
 
-      .timeline {
-        margin: 10px 0 0;
+      h2 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .location-list {
+        margin: 4px 0 0;
         padding: 0;
         list-style: none;
       }
 
-      .timeline li {
-        position: relative;
-        display: grid;
-        grid-template-columns: 12px 1fr;
-        column-gap: 14px;
+      .location-list li {
+        display: flex;
         align-items: baseline;
-        padding: 6px 0;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
       }
 
-      .timeline li::before {
-        content: '';
-        position: absolute;
-        left: 5.5px;
-        top: 0;
-        bottom: 0;
-        width: 1px;
-        background: var(--line);
-      }
-
-      .timeline li:first-child::before {
-        top: 12px;
-      }
-
-      .timeline li:last-child::before {
-        bottom: calc(100% - 18px);
-      }
-
-      .timeline-dot {
-        position: relative;
-        align-self: center;
-        width: 7px;
-        height: 7px;
-        margin: 0 auto;
-        background: var(--dot);
-        border-radius: 50%;
-        box-shadow: 0 0 0 3px var(--dot-ring);
+      .location-list li + li {
+        border-top: 0.5px solid var(--line);
       }
 
       .location-description {
         font-size: 14px;
-        font-weight: 500;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
 
-      .timeline .date {
-        font-size: 12px;
+      .location-list .date {
+        flex-shrink: 0;
+        font-size: 13px;
         color: var(--muted);
-        margin-top: 1px;
       }
 
       .source-link {
         display: block;
-        margin-top: 18px;
-        padding-top: 12px;
-        border-top: 1px solid var(--line);
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 0.5px solid var(--line);
         font-size: 12px;
         color: var(--faint);
         text-decoration: none;
         text-align: right;
-        transition: color 0.15s ease;
       }
 
       .source-link:hover {
         color: var(--accent);
       }
 
-      /* Map markers */
+      /* Map annotations */
       .current-location-icon {
         position: relative;
-        width: 12px;
-        height: 12px;
+        width: 16px;
+        height: 16px;
         background: var(--accent);
-        border: 2px solid #fff;
+        border: 3px solid #fff;
         border-radius: 50%;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
       }
 
       .current-location-icon::after {
         content: '';
         position: absolute;
-        inset: -2px;
+        inset: -3px;
         background: var(--accent);
         border-radius: 50%;
         animation: ping 3s cubic-bezier(0.2, 0, 0.4, 1) infinite;
@@ -293,18 +210,18 @@
         background: var(--dot);
         border: 1.5px solid var(--dot-ring);
         border-radius: 50%;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
       }
 
       @media (max-width: 640px) {
         .panel {
           top: auto;
           right: 10px;
-          bottom: 10px;
+          bottom: calc(10px + env(safe-area-inset-bottom));
           left: 10px;
           width: auto;
           max-height: 44dvh;
-          padding: 18px 18px 12px;
+          padding: 16px 16px 10px;
         }
 
         h1 {
@@ -320,26 +237,26 @@
       <header class="panel-header">
         <div class="pulse-dot"></div>
         <div>
-          <p class="label">Currently in</p>
           <h1 id="current-place">&nbsp;</h1>
           <div class="current-date" id="current-date"></div>
         </div>
       </header>
 
       <section class="previously">
-        <p class="label">Previously</p>
-        <ul id="locations" class="timeline"></ul>
+        <h2>Previously</h2>
+        <ul id="locations" class="location-list"></ul>
       </section>
 
       <a href='https://github.com/dylanpyle/location' class="source-link">view source</a>
     </aside>
 
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-
     <script src="location.js"></script>
+    <script
+      src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"
+      crossorigin
+      async
+      data-callback="initMapKit"
+      data-libraries="map,annotations,overlays"
+    ></script>
   </body>
 </html>

@@ -9,6 +9,23 @@ Available at [https://location.dylanpyle.com](https://location.dylanpyle.com)
 
 The `update-location` script is run hourly via a cron job on my primary machine.
 
+## Map setup
+
+The map is rendered with [MapKit JS](https://developer.apple.com/maps/web/) and
+needs a token (requires an Apple Developer Program membership):
+
+1. In the [developer portal](https://developer.apple.com/account), create a
+   Maps ID (Certificates, Identifiers & Profiles → Identifiers) and a private
+   key with MapKit JS enabled (→ Keys).
+2. Generate a token at
+   [maps.developer.apple.com](https://maps.developer.apple.com) using that key,
+   with the origin restricted to this site's domain.
+3. Paste it into `PRODUCTION_TOKEN` in `location.js`.
+
+For local development, the page uses `DEVELOPMENT_TOKEN` instead whenever it's
+served from localhost. Dev tokens are unrestricted and short-lived — generate a
+fresh one (no origin restriction) at maps.developer.apple.com when it expires.
+
 Inspired by [Hundred Rabbits](https://100r.co/site/where.html)
 
 # License
