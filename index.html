@@ -3,6 +3,7 @@
   <head>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <meta name='color-scheme' content='light dark'>
     <title>location</title>
     <link
       rel="stylesheet"
@@ -15,19 +16,50 @@
       @font-face {
         font-family: 'Haskoy';
         src: url('https://dylanpyle.com/fonts/haskoy[wght].woff2') format('woff2');
+        font-weight: 100 900;
         font-style: normal;
         font-display: swap;
       }
 
       @keyframes ping {
         0% {
-          transform: scale(0);
-          opacity: 1;
+          transform: scale(1);
+          opacity: 0.8;
         }
 
-        50%, 100% {
-          transform: scale(4);
+        70%, 100% {
+          transform: scale(3.5);
           opacity: 0;
+        }
+      }
+
+      :root {
+        --bg: #eef0f2;
+        --panel: rgba(255, 255, 255, 0.82);
+        --panel-border: rgba(0, 0, 0, 0.07);
+        --text: #16181c;
+        --muted: #7a808a;
+        --faint: #b3b8c0;
+        --line: rgba(0, 0, 0, 0.09);
+        --accent: #0899ec;
+        --dot: #c6cad1;
+        --dot-ring: #ffffff;
+        --shadow: 0 16px 48px rgba(15, 20, 30, 0.18), 0 2px 8px rgba(15, 20, 30, 0.08);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101216;
+          --panel: rgba(24, 27, 32, 0.82);
+          --panel-border: rgba(255, 255, 255, 0.09);
+          --text: #eceef1;
+          --muted: #9aa1ab;
+          --faint: #5c636e;
+          --line: rgba(255, 255, 255, 0.1);
+          --accent: #2fb1ff;
+          --dot: #4a515c;
+          --dot-ring: #1c2026;
+          --shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.35);
         }
       }
 
@@ -35,134 +67,272 @@
         box-sizing: border-box;
       }
 
-      body, p, h1, ul {
-        color: #111;
-        font-size: 15px;
-        font-weight: 400;
-        font-family: 'Haskoy', sans;
-        line-height: 1.4;
-        margin: 0;
-        padding: 0;
-
-        @media (max-width: 600px) {
-          font-size: 16px;
-        }
-      }
-
-      html {
-        background: #fff;
-      }
-
       html, body {
         height: 100%;
         margin: 0;
         padding: 0;
-        scroll-behavior: smooth;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Haskoy', system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
         cursor: default;
       }
 
-      li {
+      #map {
+        position: fixed;
+        inset: 0;
+      }
+
+      .leaflet-container {
+        background: var(--bg);
+        font-family: inherit;
+      }
+
+      .leaflet-tooltip {
+        font-family: inherit;
+        font-size: 12.5px;
+        color: var(--text);
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(8px);
+        padding: 5px 9px;
+      }
+
+      .leaflet-tooltip::before {
+        display: none;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .leaflet-bar a {
+          background: #1c2026;
+          color: #eceef1;
+          border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .leaflet-bar a:hover {
+          background: #262b33;
+        }
+
+        .leaflet-control-attribution {
+          background: rgba(24, 27, 32, 0.7);
+          color: var(--muted);
+        }
+
+        .leaflet-control-attribution a {
+          color: var(--accent);
+        }
+      }
+
+      .panel {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 1100;
+        width: 300px;
+        max-height: calc(100dvh - 32px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 22px 22px 14px;
+        background: var(--panel);
+        backdrop-filter: blur(20px) saturate(1.5);
+        -webkit-backdrop-filter: blur(20px) saturate(1.5);
+        border: 1px solid var(--panel-border);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .label {
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0 0 2px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 23px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+
+      .current-date {
+        margin-top: 3px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .pulse-dot {
+        position: relative;
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        margin-top: 5px;
+        background: var(--accent);
+        border-radius: 50%;
+      }
+
+      .pulse-dot::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: ping 3s cubic-bezier(0.2, 0, 0.4, 1) infinite;
+      }
+
+      .previously {
+        margin-top: 22px;
+      }
+
+      .timeline {
+        margin: 10px 0 0;
+        padding: 0;
         list-style: none;
       }
 
-      .outer {
-        min-height: 100%;
-        padding: 20px;
-        display: grid;
-        grid-template-columns: 1fr minmax(200px, auto);
-        gap: 12px;
-      }
-
-      @media (max-width: 600px) {
-        .outer {
-          grid-template-columns: 1fr;
-          grid-template-rows: 400px auto;
-        }
-      }
-
-      #map, main {
-        border-radius: 8px;
-      }
-
-      main {
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: stretch;
-      }
-
-      p {
-        margin-bottom: 0.8em;
-      }
-
-      .location {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        border-radius: 8px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        align-items: center;
-        margin-bottom: 5px;
-      }
-
-      .location:first-of-type {
-        background-color: #f0f9ff;
-      }
-
-      .location .date {
-        font-size: 0.8em;
-        color: #666;
-      }
-
-      .location-icon {
-        width: 12px;
-        height: 12px;
-        border: 1px solid #aaa;
-        background-color: #ddd;
-        border-radius: 50%;
-      }
-
-      .location:first-of-type .location-icon, .current-location-icon {
+      .timeline li {
         position: relative;
-        width: 12px;
-        height: 12px;
-        background-color: #08A6FF;
-        border-radius: 50%;
-        border: 0;
+        display: grid;
+        grid-template-columns: 12px 1fr;
+        column-gap: 14px;
+        align-items: baseline;
+        padding: 6px 0;
+      }
 
-        &::after {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 12px;
-          height: 12px;
-          background-color: #08A6FF;
-          border-radius: 50%;
-          animation: ping 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-          content: '';
-        }
+      .timeline li::before {
+        content: '';
+        position: absolute;
+        left: 5.5px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--line);
+      }
+
+      .timeline li:first-child::before {
+        top: 12px;
+      }
+
+      .timeline li:last-child::before {
+        bottom: calc(100% - 18px);
+      }
+
+      .timeline-dot {
+        position: relative;
+        align-self: center;
+        width: 7px;
+        height: 7px;
+        margin: 0 auto;
+        background: var(--dot);
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px var(--dot-ring);
+      }
+
+      .location-description {
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .timeline .date {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 1px;
       }
 
       .source-link {
-        font-size: 0.8em;
-        color: #666;
-        text-decoration: none;
         display: block;
-        margin-top: 10px;
+        margin-top: 18px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        color: var(--faint);
+        text-decoration: none;
         text-align: right;
+        transition: color 0.15s ease;
+      }
+
+      .source-link:hover {
+        color: var(--accent);
+      }
+
+      /* Map markers */
+      .current-location-icon {
+        position: relative;
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .current-location-icon::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: ping 3s cubic-bezier(0.2, 0, 0.4, 1) infinite;
+      }
+
+      .past-location-icon {
+        width: 9px;
+        height: 9px;
+        background: var(--dot);
+        border: 1.5px solid var(--dot-ring);
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 640px) {
+        .panel {
+          top: auto;
+          right: 10px;
+          bottom: 10px;
+          left: 10px;
+          width: auto;
+          max-height: 44dvh;
+          padding: 18px 18px 12px;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="outer">
-      <div id="map"></div>
-      <main>
-        <ul id="locations"></ul>
-        <a href='https://github.com/dylanpyle/location' class="source-link">view source</a>
-      </main>
-    </div>
+    <div id="map"></div>
+
+    <aside class="panel">
+      <header class="panel-header">
+        <div class="pulse-dot"></div>
+        <div>
+          <p class="label">Currently in</p>
+          <h1 id="current-place">&nbsp;</h1>
+          <div class="current-date" id="current-date"></div>
+        </div>
+      </header>
+
+      <section class="previously">
+        <p class="label">Previously</p>
+        <ul id="locations" class="timeline"></ul>
+      </section>
+
+      <a href='https://github.com/dylanpyle/location' class="source-link">view source</a>
+    </aside>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
