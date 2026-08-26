@@ -218,6 +218,15 @@ window.initMapKit = async function initMapKit() {
 
   map.addAnnotations([...pastAnnotations, currentAnnotation]);
 
+  // Inset the map's logical viewport by the area the panel covers, so the
+  // current location centers within the visible portion of the map
+  const panelEl = document.querySelector(".panel");
+  const isMobileLayout = window.matchMedia("(max-width: 640px)").matches;
+
+  map.padding = isMobileLayout
+    ? new mapkit.Padding({ bottom: panelEl.offsetHeight + 20 })
+    : new mapkit.Padding({ left: panelEl.offsetWidth + 32 });
+
   map.region = new mapkit.CoordinateRegion(
     locationToCoordinate(currentLocation),
     new mapkit.CoordinateSpan(14, 14),
