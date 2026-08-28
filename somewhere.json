@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 39.5,
+      "lng": -119.8,
+      "city": "Reno",
+      "state": "NV",
+      "region": "United States",
+      "timestamp": 1787875208837
+    },
+    {
       "lat": 42.2,
       "lng": -83.4,
       "city": "Romulus",
