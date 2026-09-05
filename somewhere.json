@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 37.9,
+      "lng": -122.3,
+      "city": "Berkeley",
+      "state": "CA",
+      "region": "United States",
+      "timestamp": 1788584475639
+    },
+    {
       "lat": 39.5,
       "lng": -119.8,
       "city": "Reno",
