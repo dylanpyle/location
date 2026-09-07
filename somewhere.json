@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 33.9,
+      "lng": -118.4,
+      "city": "Los Angeles",
+      "state": "CA",
+      "region": "United States",
+      "timestamp": 1788817168219
+    },
+    {
       "lat": 37.9,
       "lng": -122.3,
       "city": "Berkeley",
