@@ -10,7 +10,7 @@
       @keyframes ping {
         0% {
           transform: scale(1);
-          opacity: 0.6;
+          opacity: 0.5;
         }
 
         70%, 100% {
@@ -108,23 +108,43 @@
         color: var(--muted);
       }
 
-      .pulse-dot {
+      /* Live-location dots: ::before is the pulse and ::after the dot itself,
+         so the pulse paints underneath and spreads out from the dot's edge
+         instead of washing over it */
+      .pulse-dot,
+      .current-location-icon {
         position: relative;
-        flex-shrink: 0;
-        width: 12px;
-        height: 12px;
-        margin-top: 7px;
-        background: var(--accent);
-        border-radius: 50%;
       }
 
-      .pulse-dot::after {
+      .pulse-dot::before,
+      .pulse-dot::after,
+      .current-location-icon::before,
+      .current-location-icon::after {
         content: '';
         position: absolute;
         inset: 0;
         background: var(--accent);
         border-radius: 50%;
+      }
+
+      .pulse-dot::before,
+      .current-location-icon::before {
         animation: ping 3s cubic-bezier(0.2, 0, 0.4, 1) infinite;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pulse-dot::before,
+        .current-location-icon::before {
+          animation: none;
+          opacity: 0;
+        }
+      }
+
+      .pulse-dot {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        margin-top: 7px;
       }
 
       .previously {
@@ -178,30 +198,28 @@
         color: var(--faint);
         text-decoration: none;
         text-align: right;
+        cursor: pointer;
       }
 
       .source-link:hover {
         color: var(--accent);
       }
 
+      .source-link:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
       /* Map annotations */
       .current-location-icon {
-        position: relative;
         width: 16px;
         height: 16px;
-        background: var(--accent);
-        border: 3px solid #fff;
-        border-radius: 50%;
-        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
       }
 
       .current-location-icon::after {
-        content: '';
-        position: absolute;
-        inset: -3px;
-        background: var(--accent);
-        border-radius: 50%;
-        animation: ping 3s cubic-bezier(0.2, 0, 0.4, 1) infinite;
+        border: 3px solid #fff;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
       }
 
       .past-location-icon {

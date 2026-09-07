@@ -1,19 +1,25 @@
 const RECENT_LOCATION_COUNT = 10;
 
-// Origin-locked to location.dylanpyle.com
-const PRODUCTION_TOKEN =
-  "eyJraWQiOiJVVzU4NTJSSFdSIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJMVDlRVjdFQUo3IiwiaWF0IjoxNzg3NzE2OTc5LCJvcmlnaW4iOiJsb2NhdGlvbi5keWxhbnB5bGUuY29tIiwic2NvcGUiOiJtYXBraXRfanMifQ.KQ9DTMMVw6ys_LYfHwwjfGgSTyUVwbvW0AMcHZcuOK50OXTyJfP3w0oBQyK2zi20dW7lMUeLVQQSdagqcZOW5A";
+// MapKit JS tokens from maps.developer.apple.com, each with its origin
+// restricted to one domain. Origin-locked tokens never expire and are useless
+// from any other site, so they're fine to commit. `location.test` is for local
+// development; point it at 127.0.0.1 in /etc/hosts (see readme)
+const MAPKIT_TOKENS = {
+  "location.dylanpyle.com":
+    "eyJraWQiOiJVVzU4NTJSSFdSIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJMVDlRVjdFQUo3IiwiaWF0IjoxNzg3NzE2OTc5LCJvcmlnaW4iOiJsb2NhdGlvbi5keWxhbnB5bGUuY29tIiwic2NvcGUiOiJtYXBraXRfanMifQ.KQ9DTMMVw6ys_LYfHwwjfGgSTyUVwbvW0AMcHZcuOK50OXTyJfP3w0oBQyK2zi20dW7lMUeLVQQSdagqcZOW5A",
+  "location.test": "eyJraWQiOiIzQjQ3VjRHMzVBIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJMVDlRVjdFQUo3IiwiaWF0IjoxNzg4ODIxMTcyLCJvcmlnaW4iOiJsb2NhdGlvbi50ZXN0Iiwic2NvcGUiOiJtYXBraXRfanMifQ.7tvu-KUajFKNxYFH47wNKfW6hSFubfALh7sf1iSMx6jHvvvwaN_blq-yxzdMQVeV3U1fYpD8mAA7xjIbVLiNGQ",
+};
 
-// Unrestricted, short-lived; regenerate at maps.developer.apple.com when expired
-const DEVELOPMENT_TOKEN =
-  "eyJraWQiOiJWMzhMOUxNNjkzIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJMVDlRVjdFQUo3IiwiaWF0IjoxNzg3NzE2OTkzLCJzY29wZSI6Im1hcGtpdF9qcyIsImV4cCI6MTc4ODMzMjM5OX0.0L4XMeuA_h6DKHUsFZ9mi-kdRaB0FqTTuNUZDq5Std-pv-ot537dZQKhvJlRnStiSBdtCsVx2pLn7AwY7syxlA";
+function authorizeMapKit(done) {
+  const token = MAPKIT_TOKENS[window.location.hostname];
 
-function getMapKitToken() {
-  const isLocal = ["localhost", "127.0.0.1", "[::1]"].includes(
-    window.location.hostname,
-  );
+  if (!token) {
+    console.error(
+      `No MapKit token for ${window.location.hostname}; see readme.md`,
+    );
+  }
 
-  return isLocal ? DEVELOPMENT_TOKEN : PRODUCTION_TOKEN;
+  done(token);
 }
 
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -232,9 +238,7 @@ function currentColorScheme() {
 }
 
 window.initMapKit = async function initMapKit() {
-  mapkit.init({
-    authorizationCallback: (done) => done(getMapKitToken()),
-  });
+  mapkit.init({ authorizationCallback: authorizeMapKit });
 
   const locations = await locationsPromise;
   const [currentLocation, ...otherLocations] = locations;

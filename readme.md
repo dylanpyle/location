@@ -19,12 +19,27 @@ needs a token (requires an Apple Developer Program membership):
    key with MapKit JS enabled (→ Keys).
 2. Generate a token at
    [maps.developer.apple.com](https://maps.developer.apple.com) using that key,
-   with the origin restricted to this site's domain.
-3. Paste it into `PRODUCTION_TOKEN` in `location.js`.
+   with the origin restricted to `location.dylanpyle.com`.
+3. Paste it into `MAPKIT_TOKENS` in `location.js`.
 
-For local development, the page uses `DEVELOPMENT_TOKEN` instead whenever it's
-served from localhost. Dev tokens are unrestricted and short-lived — generate a
-fresh one (no origin restriction) at maps.developer.apple.com when it expires.
+Tokens restricted to a domain never expire, and don't work from any other site,
+so they're fine to commit. (Tokens without a restriction expire after 7 days.)
+
+## Local development
+
+Apple's token generator won't accept `localhost`, so local development uses a
+made-up domain instead:
+
+1. Generate a second token restricted to `location.test` and paste it into
+   `MAPKIT_TOKENS` alongside the production one.
+2. Point the domain at your machine:
+
+   ```
+   echo "127.0.0.1 location.test" | sudo tee -a /etc/hosts
+   ```
+
+3. Serve the directory with any static server, e.g. `python3 -m http.server`,
+   and open http://location.test:8000
 
 Inspired by [Hundred Rabbits](https://100r.co/site/where.html)
 
