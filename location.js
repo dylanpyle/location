@@ -68,7 +68,7 @@ function getRelativeDateString(date) {
   }
 
   if (days < 7) {
-    return `${days} days ago`;
+    return date.toLocaleString("en-US", { weekday: "long" });
   }
 
   return getDateString(date);
@@ -242,28 +242,31 @@ window.initMapKit = async function initMapKit() {
 
   const locations = await locationsPromise;
   const [currentLocation, ...otherLocations] = locations;
+  const isMobileLayout = window.matchMedia("(max-width: 640px)").matches;
 
   const map = new mapkit.Map("map", {
     mapType: mapkit.Map.MapTypes.MutedStandard,
     colorScheme: currentColorScheme(),
     showsMapTypeControl: false,
+    showsZoomControl: !isMobileLayout,
     showsCompass: mapkit.FeatureVisibility.Hidden,
     showsScale: mapkit.FeatureVisibility.Hidden,
     isRotationEnabled: false,
   });
 
-  darkQuery.addEventListener("change", () => {
-    map.colorScheme = currentColorScheme();
-  });
-
   // MapKit silently thins the points of longer PolylineOverlay paths (even
   // when split into multi-point chunks), which dropped single-visit locations
   // from the route — one short overlay per leg keeps every location on the map
-  const lineStyle = new mapkit.Style({
-    strokeColor: "#8e939c",
-    strokeOpacity: 0.5,
-    lineWidth: 1.5,
-  });
+  const lineStyle = new mapkit.Style({ lineWidth: 1.5 });
+
+  const applyColorScheme = () => {
+    map.colorScheme = currentColorScheme();
+    lineStyle.strokeColor = darkQuery.matches ? "#c7ccd6" : "#8e939c";
+    lineStyle.strokeOpacity = darkQuery.matches ? 0.3 : 0.5;
+  };
+
+  applyColorScheme();
+  darkQuery.addEventListener("change", applyColorScheme);
 
   for (let i = 0; i < locations.length - 1; i++) {
     const arc = greatCirclePoints(locations[i], locations[i + 1]);
@@ -308,7 +311,6 @@ window.initMapKit = async function initMapKit() {
   // Inset the map's logical viewport by the area the panel covers, so the
   // current location centers within the visible portion of the map
   const panelEl = document.querySelector(".panel");
-  const isMobileLayout = window.matchMedia("(max-width: 640px)").matches;
 
   map.padding = isMobileLayout
     ? new mapkit.Padding({ bottom: panelEl.offsetHeight + 20 })
