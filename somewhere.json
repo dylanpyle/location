@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.4,
+      "lng": -83.1,
+      "city": "Detroit",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1788904808119
+    },
+    {
       "lat": 33.9,
       "lng": -118.4,
       "city": "Los Angeles",
