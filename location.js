@@ -1,4 +1,6 @@
-const RECENT_LOCATION_COUNT = 10;
+const COLLAPSED_STAY_COUNT = 10;
+const FOCUS_SPAN_DEGREES = 10;
+const REFRESH_INTERVAL = 30 * 60 * 1000;
 
 // MapKit JS tokens from maps.developer.apple.com, each with its origin
 // restricted to one domain. Origin-locked tokens never expire and are useless
@@ -23,10 +25,33 @@ function authorizeMapKit(done) {
 }
 
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const mobileQuery = window.matchMedia("(max-width: 640px)");
 
-const locationsPromise = fetch("/somewhere.json")
-  .then((response) => response.json())
-  .then((data) => data.locations);
+const panelEl = document.querySelector(".panel");
+const currentButton = document.getElementById("current");
+const currentPlaceEl = document.getElementById("current-place");
+const currentDateEl = document.getElementById("current-date");
+const listEl = document.getElementById("locations");
+const showAllButton = document.getElementById("show-all");
+
+// Everything rendered on screen derives from this
+const app = {
+  locations: null,
+  stays: null,
+  expanded: false,
+  selectedStay: null,
+  rows: new Map(), // stay index → row button
+  map: null,
+  annotations: [], // parallel to locations
+  lineStyle: null,
+  minZoomDegreesPerPixel: null,
+};
+
+function fetchLocations() {
+  return fetch("/somewhere.json", { cache: "no-cache" })
+    .then((response) => response.json())
+    .then((data) => data.locations);
+}
 
 function getLocationString(location) {
   const isDomestic = location.region === "United States";
@@ -37,6 +62,27 @@ function getLocationString(location) {
   ].filter(Boolean);
 
   return parts.join(", ");
+}
+
+// The log only gets a new entry when the rounded coordinates change, so moving
+// around within a city produces a run of entries. Each run is one stay, and
+// the oldest entry in it is the arrival (entries are newest-first)
+function groupStays(locations) {
+  const stays = [];
+
+  locations.forEach((location, index) => {
+    const name = getLocationString(location);
+    const last = stays[stays.length - 1];
+
+    if (last && last.name === name) {
+      last.entries.push(index);
+      last.arrived = location.timestamp;
+    } else {
+      stays.push({ name, entries: [index], arrived: location.timestamp });
+    }
+  });
+
+  return stays;
 }
 
 function getDateString(date) {
@@ -92,58 +138,81 @@ function getSinceString(date) {
   return `Since ${getDateString(date)}`;
 }
 
-function createLocationEl(location) {
-  const locationEl = document.createElement("li");
+// --- Panel ---
+
+function createRow(stay, stayIndex) {
+  const li = document.createElement("li");
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.classList.add("row");
+  button.addEventListener("click", () => focusStay(stayIndex));
+  li.appendChild(button);
 
   const descriptionEl = document.createElement("span");
   descriptionEl.classList.add("location-description");
-  descriptionEl.textContent = getLocationString(location);
-  locationEl.appendChild(descriptionEl);
+  descriptionEl.textContent = stay.name;
+  button.appendChild(descriptionEl);
 
   const dateEl = document.createElement("span");
   dateEl.classList.add("date");
-  dateEl.textContent = getRelativeDateString(new Date(location.timestamp));
-  locationEl.appendChild(dateEl);
+  dateEl.textContent = getRelativeDateString(new Date(stay.arrived));
+  button.appendChild(dateEl);
 
-  return locationEl;
+  return { li, button };
 }
 
-function renderPanel(locations) {
-  const [currentLocation, ...previousLocations] = locations;
+function renderPanel() {
+  const [current, ...previous] = app.stays;
 
-  document.getElementById("current-place").textContent =
-    getLocationString(currentLocation);
-  document.getElementById("current-date").textContent = getSinceString(
-    new Date(currentLocation.timestamp),
-  );
+  currentPlaceEl.textContent = current.name;
+  currentDateEl.textContent = getSinceString(new Date(current.arrived));
+  document.title = current.name;
 
-  const locationsEl = document.getElementById("locations");
+  const shown = app.expanded
+    ? previous
+    : previous.slice(0, COLLAPSED_STAY_COUNT);
 
-  let previousString = getLocationString(currentLocation);
-  let shown = 0;
+  app.rows = new Map();
+  listEl.replaceChildren();
 
-  for (const location of previousLocations) {
-    if (shown >= RECENT_LOCATION_COUNT) {
-      break;
+  shown.forEach((stay, i) => {
+    const stayIndex = i + 1;
+    const { li, button } = createRow(stay, stayIndex);
+    app.rows.set(stayIndex, button);
+    listEl.appendChild(li);
+  });
+
+  showAllButton.hidden = previous.length <= COLLAPSED_STAY_COUNT;
+  showAllButton.textContent = app.expanded ? "Show Less" : "Show All";
+
+  setSelectedStay(app.selectedStay);
+}
+
+function setSelectedStay(stayIndex) {
+  app.selectedStay = stayIndex;
+
+  for (const [index, row] of app.rows) {
+    if (index === stayIndex) {
+      row.setAttribute("aria-current", "true");
+    } else {
+      row.removeAttribute("aria-current");
     }
-
-    const locationString = getLocationString(location);
-
-    if (locationString === previousString) {
-      continue;
-    }
-
-    previousString = locationString;
-    locationsEl.appendChild(createLocationEl(location));
-    shown++;
   }
 }
 
-locationsPromise.then(renderPanel);
+showAllButton.addEventListener("click", () => {
+  app.expanded = !app.expanded;
+  renderPanel();
 
-function locationToCoordinate(location) {
-  return new mapkit.Coordinate(location.lat, location.lng);
-}
+  if (!app.expanded) {
+    panelEl.scrollTop = 0;
+  }
+});
+
+currentButton.addEventListener("click", () => focusStay(0));
+
+// --- Map ---
 
 function toRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -225,49 +294,83 @@ function splitAtAntimeridian(points) {
   return runs.filter((run) => run.length >= 2);
 }
 
+function locationToCoordinate(location) {
+  return new mapkit.Coordinate(location.lat, location.lng);
+}
+
 function createDotElement(className) {
   const el = document.createElement("div");
   el.classList.add(className);
   return el;
 }
 
-function currentColorScheme() {
-  return darkQuery.matches
+function applyColorScheme() {
+  const dark = darkQuery.matches;
+
+  app.map.colorScheme = dark
     ? mapkit.Map.ColorSchemes.Dark
     : mapkit.Map.ColorSchemes.Light;
+  app.lineStyle.strokeColor = dark ? "#c7ccd6" : "#8e939c";
+  app.lineStyle.strokeOpacity = dark ? 0.3 : 0.5;
 }
 
-window.initMapKit = async function initMapKit() {
-  mapkit.init({ authorizationCallback: authorizeMapKit });
+// Inset the map's logical viewport by the area the panel covers, so focused
+// locations center within the visible portion of the map
+function applyLayout() {
+  const mobile = mobileQuery.matches;
 
-  const locations = await locationsPromise;
-  const [currentLocation, ...otherLocations] = locations;
-  const isMobileLayout = window.matchMedia("(max-width: 640px)").matches;
+  app.map.padding = mobile
+    ? new mapkit.Padding({ bottom: panelEl.offsetHeight + 20 })
+    : new mapkit.Padding({ left: panelEl.offsetWidth + 32 });
+  app.map.showsZoomControl = !mobile;
+}
 
+function createMap() {
   const map = new mapkit.Map("map", {
     mapType: mapkit.Map.MapTypes.MutedStandard,
-    colorScheme: currentColorScheme(),
     showsMapTypeControl: false,
-    showsZoomControl: !isMobileLayout,
     showsCompass: mapkit.FeatureVisibility.Hidden,
     showsScale: mapkit.FeatureVisibility.Hidden,
     isRotationEnabled: false,
   });
 
+  map.addEventListener("select", (event) => {
+    const stayIndex = event.annotation?.data?.stay;
+
+    if (stayIndex === undefined) {
+      return;
+    }
+
+    if (!app.rows.has(stayIndex) && stayIndex > 0) {
+      app.expanded = true;
+      renderPanel();
+    }
+
+    setSelectedStay(stayIndex);
+    app.rows.get(stayIndex)?.scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    });
+  });
+
+  map.addEventListener("deselect", (event) => {
+    if (event.annotation?.data?.stay === app.selectedStay) {
+      setSelectedStay(null);
+    }
+  });
+
+  return map;
+}
+
+function renderMap() {
+  const { map, locations, stays } = app;
+
+  map.removeAnnotations(map.annotations);
+  map.removeOverlays(map.overlays);
+
   // MapKit silently thins the points of longer PolylineOverlay paths (even
   // when split into multi-point chunks), which dropped single-visit locations
   // from the route — one short overlay per leg keeps every location on the map
-  const lineStyle = new mapkit.Style({ lineWidth: 1.5 });
-
-  const applyColorScheme = () => {
-    map.colorScheme = currentColorScheme();
-    lineStyle.strokeColor = darkQuery.matches ? "#c7ccd6" : "#8e939c";
-    lineStyle.strokeOpacity = darkQuery.matches ? 0.3 : 0.5;
-  };
-
-  applyColorScheme();
-  darkQuery.addEventListener("change", applyColorScheme);
-
   for (let i = 0; i < locations.length - 1; i++) {
     const arc = greatCirclePoints(locations[i], locations[i + 1]);
 
@@ -275,49 +378,225 @@ window.initMapKit = async function initMapKit() {
       map.addOverlay(
         new mapkit.PolylineOverlay(
           run.map(([lat, lng]) => new mapkit.Coordinate(lat, lng)),
-          { style: lineStyle },
+          { style: app.lineStyle },
         ),
       );
     }
   }
 
-  const pastAnnotations = otherLocations.map(
-    (location) =>
-      new mapkit.Annotation(
+  app.annotations = locations.map(() => null);
+
+  stays.forEach((stay, stayIndex) => {
+    const isCurrent = stayIndex === 0;
+
+    for (const entryIndex of stay.entries) {
+      const location = locations[entryIndex];
+
+      // Repeat visits stack identical dots; a newer entry gets a slightly
+      // higher priority so the one MapKit keeps visible is the latest visit
+      const priority = isCurrent
+        ? 1000
+        : 950 - Math.round((200 * entryIndex) / locations.length);
+
+      app.annotations[entryIndex] = new mapkit.Annotation(
         locationToCoordinate(location),
-        () => createDotElement("past-location-icon"),
+        () =>
+          createDotElement(
+            isCurrent ? "current-location-icon" : "past-location-icon",
+          ),
         {
-          title: getLocationString(location),
+          title: stay.name,
           subtitle: getDateString(new Date(location.timestamp)),
-          displayPriority: 750,
-          anchorOffset: new DOMPoint(0, -4.5),
+          data: { stay: stayIndex },
+          displayPriority: priority,
+          anchorOffset: new DOMPoint(0, isCurrent ? -8 : -4.5),
         },
-      ),
+      );
+    }
+  });
+
+  map.addAnnotations(app.annotations);
+}
+
+function stayRegion(stay) {
+  const newest = app.locations[stay.entries[0]];
+
+  return new mapkit.CoordinateRegion(
+    locationToCoordinate(newest),
+    new mapkit.CoordinateSpan(FOCUS_SPAN_DEGREES, FOCUS_SPAN_DEGREES),
+  );
+}
+
+// Fly to a stay and open its callout, which also highlights its row
+function focusStay(stayIndex) {
+  if (!app.map) {
+    return;
+  }
+
+  const stay = app.stays[stayIndex];
+
+  app.map.setRegionAnimated(stayRegion(stay), true);
+  app.annotations[stay.entries[0]].selected = true;
+  setSelectedStay(stayIndex);
+}
+
+// MapKit stops zooming out at a fixed camera distance. Measure how much
+// longitude a pixel covers there by briefly setting a whole-world region;
+// region changes apply synchronously, so nothing is painted in between
+function minZoomDegreesPerPixel() {
+  const { map } = app;
+
+  if (app.minZoomDegreesPerPixel === null) {
+    const region = map.region;
+
+    map.region = new mapkit.CoordinateRegion(
+      new mapkit.Coordinate(0, 0),
+      new mapkit.CoordinateSpan(180, 360),
+    );
+    app.minZoomDegreesPerPixel = map.region.span.longitudeDelta /
+      map.element.clientWidth;
+    map.region = region;
+  }
+
+  return app.minZoomDegreesPerPixel;
+}
+
+function normalizeLongitude(lng) {
+  return ((lng + 540) % 360) - 180;
+}
+
+// The trail spans more longitude than the widest view can hold, so show the
+// widest view over whichever slice of it holds the most entries
+function showEverywhere() {
+  const { map, locations } = app;
+  const visibleWidth = map.element.clientWidth - map.padding.left -
+    map.padding.right;
+  const windowSpan = minZoomDegreesPerPixel() * visibleWidth * 0.9;
+
+  // Longitudes listed twice so a window can wrap across the antimeridian
+  const sorted = locations.map((l) => l.lng).sort((a, b) => a - b);
+  const unwrapped = sorted.concat(sorted.map((lng) => lng + 360));
+
+  let best = { count: 0, start: 0, end: 0 };
+  let end = 0;
+
+  sorted.forEach((start, i) => {
+    while (end < unwrapped.length && unwrapped[end] <= start + windowSpan) {
+      end++;
+    }
+
+    if (end - i > best.count) {
+      best = { count: end - i, start, end: unwrapped[end - 1] };
+    }
+  });
+
+  const inWindow = (lng) => {
+    const unwrappedLng = lng < best.start ? lng + 360 : lng;
+    return unwrappedLng >= best.start && unwrappedLng <= best.end;
+  };
+
+  const lats = locations.filter((l) => inWindow(l.lng)).map((l) => l.lat);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+
+  const center = new mapkit.Coordinate(
+    (minLat + maxLat) / 2,
+    normalizeLongitude((best.start + best.end) / 2),
+  );
+  const span = new mapkit.CoordinateSpan(
+    Math.max((maxLat - minLat) * 1.2, FOCUS_SPAN_DEGREES),
+    Math.max((best.end - best.start) * 1.08, FOCUS_SPAN_DEGREES),
   );
 
-  const currentAnnotation = new mapkit.Annotation(
-    locationToCoordinate(currentLocation),
-    () => createDotElement("current-location-icon"),
-    {
-      title: getLocationString(currentLocation),
-      subtitle: getDateString(new Date(currentLocation.timestamp)),
-      displayPriority: 1000,
-      anchorOffset: new DOMPoint(0, -8),
-    },
-  );
+  deselectAll();
+  map.setRegionAnimated(new mapkit.CoordinateRegion(center, span), true);
+}
 
-  map.addAnnotations([...pastAnnotations, currentAnnotation]);
+document.getElementById("recenter").addEventListener("click", () =>
+  focusStay(0)
+);
+document.getElementById("fit-all").addEventListener("click", showEverywhere);
 
-  // Inset the map's logical viewport by the area the panel covers, so the
-  // current location centers within the visible portion of the map
-  const panelEl = document.querySelector(".panel");
+function deselectAll() {
+  for (const annotation of app.annotations) {
+    annotation.selected = false;
+  }
+}
 
-  map.padding = isMobileLayout
-    ? new mapkit.Padding({ bottom: panelEl.offsetHeight + 20 })
-    : new mapkit.Padding({ left: panelEl.offsetWidth + 32 });
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    deselectAll();
+  }
+});
 
-  map.region = new mapkit.CoordinateRegion(
-    locationToCoordinate(currentLocation),
-    new mapkit.CoordinateSpan(14, 14),
-  );
+// --- Data flow ---
+
+function render(locations) {
+  app.locations = locations;
+  app.stays = groupStays(locations);
+  app.selectedStay = null;
+
+  renderPanel();
+
+  if (app.map) {
+    renderMap();
+  }
+}
+
+// Pick up new entries while the page stays open. They land at most once a
+// day, so a slow poll plus a check whenever the tab comes back is plenty
+async function refresh() {
+  if (!app.locations) {
+    return;
+  }
+
+  let locations;
+
+  try {
+    locations = await fetchLocations();
+  } catch {
+    return;
+  }
+
+  const unchanged = locations.length === app.locations.length &&
+    locations[0].timestamp === app.locations[0].timestamp;
+
+  if (unchanged) {
+    return;
+  }
+
+  const previousPlace = app.stays[0].name;
+  render(locations);
+
+  if (app.map && app.stays[0].name !== previousPlace) {
+    app.map.setRegionAnimated(stayRegion(app.stays[0]), true);
+  }
+}
+
+setInterval(refresh, REFRESH_INTERVAL);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    refresh();
+  }
+});
+
+const locationsPromise = fetchLocations();
+locationsPromise.then(render);
+
+window.initMapKit = async function initMapKit() {
+  mapkit.init({ authorizationCallback: authorizeMapKit });
+
+  await locationsPromise;
+
+  app.lineStyle = new mapkit.Style({ lineWidth: 1.5 });
+  app.map = createMap();
+
+  applyColorScheme();
+  darkQuery.addEventListener("change", applyColorScheme);
+
+  applyLayout();
+  window.addEventListener("resize", applyLayout);
+
+  renderMap();
+  app.map.region = stayRegion(app.stays[0]);
 };

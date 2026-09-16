@@ -22,30 +22,40 @@
       :root {
         --bg: #e9eaec;
         --panel: rgba(250, 250, 250, 0.72);
+        --panel-hover: rgba(250, 250, 250, 0.92);
         --panel-border: rgba(0, 0, 0, 0.08);
         --text: #1c1c1e;
         --muted: rgba(60, 60, 67, 0.6);
         --faint: rgba(60, 60, 67, 0.33);
         --line: rgba(60, 60, 67, 0.29);
+        --fill: rgba(120, 120, 128, 0.1);
+        --fill-strong: rgba(120, 120, 128, 0.18);
+        --selected: rgba(0, 122, 255, 0.12);
         --accent: #007aff;
         --dot: #a6aab2;
         --dot-ring: #ffffff;
         --shadow: 0 10px 36px rgba(0, 0, 0, 0.16), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+        --button-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
           --bg: #1c1c1e;
           --panel: rgba(29, 29, 31, 0.72);
+          --panel-hover: rgba(44, 44, 46, 0.92);
           --panel-border: rgba(255, 255, 255, 0.1);
           --text: #f5f5f7;
           --muted: rgba(235, 235, 245, 0.6);
           --faint: rgba(235, 235, 245, 0.3);
           --line: rgba(84, 84, 88, 0.65);
+          --fill: rgba(120, 120, 128, 0.2);
+          --fill-strong: rgba(120, 120, 128, 0.3);
+          --selected: rgba(10, 132, 255, 0.22);
           --accent: #0a84ff;
           --dot: #636871;
           --dot-ring: #2c2c2e;
           --shadow: 0 10px 36px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+          --button-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
       }
 
@@ -71,6 +81,26 @@
         inset: 0;
       }
 
+      /* Buttons in our own chrome only; MapKit's controls keep their styling.
+         :where() keeps this at zero specificity so component rules win */
+      :where(.panel, .map-controls) button {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .panel :is(button, a):focus-visible,
+      .map-controls button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
       .panel {
         position: fixed;
         top: 16px;
@@ -89,20 +119,32 @@
         box-shadow: var(--shadow);
       }
 
-      .panel-header {
+      /* The header and each row are buttons whose highlight extends 8px past
+         the text, like an inset list; negative margins keep the text in place */
+      .current {
         display: flex;
         align-items: flex-start;
         gap: 13px;
+        width: calc(100% + 16px);
+        margin: -8px -8px 0;
+        padding: 8px;
+        border-radius: 10px;
+        transition: background-color 0.15s;
       }
 
-      h1 {
-        margin: 0;
+      .current-text {
+        min-width: 0;
+      }
+
+      .current-place {
+        display: block;
         font-size: 22px;
         font-weight: 700;
         line-height: 1.2;
       }
 
       .current-date {
+        display: block;
         margin-top: 2px;
         font-size: 15px;
         color: var(--muted);
@@ -151,6 +193,13 @@
         margin-top: 20px;
       }
 
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
       h2 {
         margin: 0;
         font-size: 12px;
@@ -160,26 +209,52 @@
         color: var(--muted);
       }
 
+      .show-all {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
       .location-list {
         margin: 2px 0 0;
         padding: 0;
         list-style: none;
       }
 
-      .location-list li {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 9px 0;
-      }
-
       .location-list li + li {
         border-top: 0.5px solid var(--line);
       }
 
+      .row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        width: calc(100% + 16px);
+        margin: 0 -8px;
+        padding: 9px 8px;
+        border-radius: 8px;
+        transition: background-color 0.15s;
+      }
+
+      @media (hover: hover) {
+        .current:hover,
+        .row:hover {
+          background: var(--fill);
+        }
+      }
+
+      .current:active,
+      .row:active {
+        background: var(--fill-strong);
+        transition: none;
+      }
+
+      .row[aria-current] {
+        background: var(--selected);
+      }
+
       .location-description {
-        font-size: 15px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -199,16 +274,53 @@
         text-decoration: none;
         text-align: right;
         cursor: pointer;
+        border-radius: 4px;
       }
 
       .source-link:hover {
         color: var(--accent);
       }
 
-      .source-link:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 2px;
-        border-radius: 4px;
+      /* Map controls */
+      .map-controls {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .map-button {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        background: var(--panel);
+        backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border: 0.5px solid var(--panel-border);
+        border-radius: 50%;
+        box-shadow: var(--button-shadow);
+        color: var(--accent);
+        transition: background-color 0.15s, transform 0.1s;
+      }
+
+      .map-button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (hover: hover) {
+        .map-button:hover {
+          background: var(--panel-hover);
+        }
+      }
+
+      .map-button:active {
+        background: var(--panel-hover);
+        transform: scale(0.94);
       }
 
       /* Map annotations */
@@ -239,11 +351,25 @@
           left: 10px;
           width: auto;
           max-height: 44dvh;
-          padding: 16px 16px 10px;
+          padding: 16px 16px 12px;
         }
 
-        h1 {
+        .current-place {
           font-size: 20px;
+        }
+
+        .row {
+          padding: 11px 8px;
+        }
+
+        .map-controls {
+          top: calc(10px + env(safe-area-inset-top));
+          right: 10px;
+        }
+
+        .map-button {
+          width: 40px;
+          height: 40px;
         }
       }
     </style>
@@ -251,17 +377,35 @@
   <body>
     <div id="map"></div>
 
+    <div class="map-controls">
+      <button type="button" class="map-button" id="recenter" title="Current location" aria-label="Go to current location">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        </svg>
+      </button>
+      <button type="button" class="map-button" id="fit-all" title="Trail" aria-label="Zoom out to the whole trail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </button>
+    </div>
+
     <aside class="panel">
-      <header class="panel-header">
-        <div class="pulse-dot"></div>
-        <div>
-          <h1 id="current-place">&nbsp;</h1>
-          <div class="current-date" id="current-date"></div>
-        </div>
-      </header>
+      <button type="button" class="current" id="current" title="Current location">
+        <span class="pulse-dot"></span>
+        <span class="current-text">
+          <span class="current-place" id="current-place" role="heading" aria-level="1">&nbsp;</span>
+          <span class="current-date" id="current-date"></span>
+        </span>
+      </button>
 
       <section class="previously">
-        <h2>Previously</h2>
+        <div class="section-header">
+          <h2>Previously</h2>
+          <button type="button" class="show-all" id="show-all" hidden>Show All</button>
+        </div>
         <ul id="locations" class="location-list"></ul>
       </section>
 
