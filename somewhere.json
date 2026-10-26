@@ -1,6 +1,14 @@
 {
   "locations": [
     {
+      "lat": 42.4,
+      "lng": -83.1,
+      "city": "Detroit",
+      "state": "MI",
+      "region": "United States",
+      "timestamp": 1793005283652
+    },
+    {
       "lat": 46.4,
       "lng": -86.8,
       "city": "Au Train",
